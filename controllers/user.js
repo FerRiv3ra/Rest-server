@@ -1,49 +1,63 @@
 const { response, request } = require('express');
+const bcrypt = require('bcryptjs');
 
-const userGet = (req = request, res = response) => {
+const User = require('../models/usuario');
+
+const userGet = async (req = request, res = response) => {
+    const { start = 0, limit = 5 } = req.query;
+    const query = {state: true};
+    const [ total, users ] = await Promise.all([
+        User.countDocuments(query),
+        User.find(query).skip(Number(start)).limit(Number(limit))
+    ])
+
+    res.json({
+        total,
+        users
+    })
+}
+
+const userPost = async (req = request, res = response) => {
+    // Crear la instancia del usuario con la información obligatoria
+    const { name, email, password, role } = req.body;
+    const user = new User({ name, email, password, role });
+
+    const salt = bcrypt.genSaltSync();
+    user.password = bcrypt.hashSync(password, salt);
+
+    await user.save();
+    res.json({
+        user
+    })
+}
+
+const userDelete = async (req = request, res = response) => {
     const { id } = req.params;
-    const { q, page = 1, limit = 1 } = req.query;
-    let { nombre = 'No name' } = req.query;
-    nombre = nombre.replace('%', ' ');
-    res.json({
-        ok: true,
-        msg: 'get API - Controller',
-        id,
-        q,
-        nombre,
-        page,
-        limit
-    })
+    const user = await User.findByIdAndUpdate(id, {state: false});
+    res.json({user});
 }
 
-const userPost = (req, res = response) => {
-    const {id, nombre} = req.body;
-    res.json({
-        ok: true,
-        msg: 'post API - Controller',
-        id,
-        nombre
-    })
-}
+// const userPatch = (req = request, res = response) => {
+//     res.json({
+//         id,
+//         msg: 'patch API - Controller'
+//     })
+// }
 
-const userDelete = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: 'delete API - Controller'
-    })
-}
+const userPut = async(req = request, res = response) => {
+    const { id } = req.params;
+    const { _id, password, google, email, ...resto} = req.body;
 
-const userPatch = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: 'patch API - Controller'
-    })
-}
+    if(password){
+        const salt = bcrypt.genSaltSync();
+        resto.password = bcrypt.hashSync(password, salt);
+    }
 
-const userPut = (req, res = response) => {
+    const user = await User.findByIdAndUpdate(id, resto);
+
     res.json({
         ok: true,
-        msg: 'put API - Controller'
+        user
     })
 }
 
@@ -52,6 +66,5 @@ module.exports = {
     userGet,
     userPost,
     userDelete,
-    userPatch,
     userPut
 }
