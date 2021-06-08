@@ -7,6 +7,7 @@ class Server{
     constructor(){
         this.app = express();
         this.endPoint = '/api/users';
+        this.authPath = '/api/auth';
 
         //Conexión a la base de datos
         this.conectar();
@@ -34,6 +35,7 @@ class Server{
     }
 
     routes(){
+        this.app.use(this.authPath, require('../routes/auth'));
         this.app.use(this.endPoint, require('../routes/user.routes'));
     }
 
