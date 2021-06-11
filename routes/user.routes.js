@@ -13,7 +13,7 @@ router.post('/', [
     check('name', 'El nombre es requerido').not().isEmpty(),
     check('email', 'Correo no válido').isEmail(),
     check('email').custom(validEmail),
-    check('password', 'CLa contraseña dede tener al menos 6 caracteres').isLength({min: 6}),
+    check('password', 'La contraseña dede tener al menos 6 caracteres').isLength({min: 6}),
     // check('role', 'Rol no válido').isIn(['ADMIN_ROLE', 'USER_ROLE']),
     check('role').custom(validRole),
     validarCampos

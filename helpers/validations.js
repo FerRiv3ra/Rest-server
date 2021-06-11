@@ -1,5 +1,5 @@
+const { Categoria, User, Producto } = require('../models');
 const Role = require('../models/role');
-const User = require('../models/usuario');
 
 const validRole = async (role = '') => {
     // Validar que se ingrese un rol válido
@@ -19,8 +19,22 @@ const validUserById = async ( id ) => {
     if(!exisUserById) throw new Error(`El ID ${id} no existe`);
 }
 
+const validCategoriaExists = async ( id ) => {
+    // Validar que la categoría no este registrada
+    const exisCategoiesById = await Categoria.findById(id);
+    if(!exisCategoiesById) throw new Error(`El ID ${id} no existe`);
+}
+
+const validProductoExists = async ( id ) => {
+    // Validar que la categoría no este registrada
+    const exisProductoById = await Producto.findById(id);
+    if(!exisProductoById) throw new Error(`El ID ${id} no existe`);
+}
+
 module.exports = {
     validRole,
     validEmail,
-    validUserById
+    validUserById,
+    validCategoriaExists,
+    validProductoExists
 }
